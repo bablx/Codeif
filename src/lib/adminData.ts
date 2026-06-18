@@ -1,7 +1,7 @@
-// ── Owner credentials (hardcoded) ─────────────────────────────────────────────
-export const OWNER_EMAIL    = "babix0068@gmail.com";
-export const OWNER_PASSWORD = "mayank_0068";
-export const OWNER_NAME     = "Babix";
+// ── Owner credentials (from environment variables) ───────────────────────────
+export const OWNER_EMAIL    = process.env.NEXT_PUBLIC_OWNER_EMAIL || "";
+export const OWNER_PASSWORD = process.env.NEXT_PUBLIC_OWNER_PASSWORD || "";
+export const OWNER_NAME     = process.env.NEXT_PUBLIC_OWNER_NAME || "Admin";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export interface UserSession {
