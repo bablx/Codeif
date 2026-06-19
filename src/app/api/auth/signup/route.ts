@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile, writeFile } from 'fs/promises';
+import { readFile, writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 
 const USERS_FILE = join(process.cwd(), 'data', 'users.json');
@@ -14,6 +14,7 @@ async function getUsers() {
 }
 
 async function saveUsers(users: any[]) {
+  await mkdir(join(process.cwd(), 'data'), { recursive: true });
   await writeFile(USERS_FILE, JSON.stringify(users, null, 2));
 }
 
