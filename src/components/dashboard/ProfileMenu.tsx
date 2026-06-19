@@ -6,16 +6,16 @@ import { useRouter } from 'next/navigation';
 interface ProfileMenuProps {
   name: string;
   email: string;
+  avatarColor?: string;
 }
 
-export default function ProfileMenu({ name, email }: ProfileMenuProps) {
+export default function ProfileMenu({ name, email, avatarColor = 'bg-[#7030E0]' }: ProfileMenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   const initial = name ? name.charAt(0).toUpperCase() : 'U';
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
@@ -28,12 +28,8 @@ export default function ProfileMenu({ name, email }: ProfileMenuProps) {
 
   const handleLogout = () => {
     localStorage.removeItem('sf_user');
+    localStorage.removeItem('sf_solved');
     window.location.href = '/login';
-  };
-
-  const handleProfile = () => {
-    setOpen(false);
-    alert('Profile feature coming soon!');
   };
 
   const handleSettings = () => {
@@ -41,22 +37,27 @@ export default function ProfileMenu({ name, email }: ProfileMenuProps) {
     router.push('/settings');
   };
 
+  // Read solved count from localStorage
+  const solvedCount = (() => {
+    try {
+      const raw = localStorage.getItem('sf_solved');
+      return raw ? (JSON.parse(raw) as string[]).length : 0;
+    } catch { return 0; }
+  })();
+
   return (
     <div className="relative z-[100]" ref={ref}>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+        className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800/70 transition-colors border border-transparent hover:border-gray-700"
       >
-        {/* Avatar */}
-        <div className="w-8 h-8 rounded-full bg-[#7030E0] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+        <div className={`w-8 h-8 rounded-full ${avatarColor} flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ring-2 ring-white/10`}>
           {initial}
         </div>
-        {/* Name + email */}
         <div className="text-left hidden sm:block">
           <div className="text-white text-sm font-semibold leading-tight">{name || 'Engineer'}</div>
           <div className="text-gray-500 text-xs leading-tight truncate max-w-[140px]">{email || ''}</div>
         </div>
-        {/* Chevron */}
         <svg
           width="14" height="14" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
@@ -66,35 +67,35 @@ export default function ProfileMenu({ name, email }: ProfileMenuProps) {
         </svg>
       </button>
 
-      {/* Dropdown */}
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-52 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl shadow-black/60 z-[100] overflow-hidden">
-          {/* Header */}
-          <div className="px-4 py-3 border-b border-gray-800">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-[#7030E0] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+        <div className="absolute right-0 top-full mt-2 w-64 bg-gray-900 border border-gray-700/80 rounded-xl shadow-2xl shadow-black/80 z-[100] overflow-hidden">
+          {/* Profile header */}
+          <div className="px-4 py-4 bg-gradient-to-br from-[#7030E0]/20 to-transparent border-b border-gray-800">
+            <div className="flex items-center gap-3 mb-3">
+              <div className={`w-12 h-12 rounded-full ${avatarColor} flex items-center justify-center text-white font-bold text-lg flex-shrink-0 ring-2 ring-white/10`}>
                 {initial}
               </div>
               <div>
-                <div className="text-white text-sm font-semibold">{name || 'Engineer'}</div>
-                <div className="text-gray-500 text-xs truncate max-w-[130px]">{email}</div>
+                <div className="text-white font-bold text-sm">{name || 'Engineer'}</div>
+                <div className="text-gray-400 text-xs truncate max-w-[140px]">{email}</div>
+              </div>
+            </div>
+            {/* Stats row */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-black/30 rounded-lg px-3 py-2 text-center border border-gray-800">
+                <div className="text-[#7030E0] font-bold text-lg leading-none">{solvedCount}</div>
+                <div className="text-gray-500 text-xs mt-0.5">Solved</div>
+              </div>
+              <div className="bg-black/30 rounded-lg px-3 py-2 text-center border border-gray-800">
+                <div className="text-amber-400 font-bold text-lg leading-none">—</div>
+                <div className="text-gray-500 text-xs mt-0.5">Rank</div>
               </div>
             </div>
           </div>
 
           {/* Menu items */}
           <div className="py-1">
-            <button 
-              onClick={handleProfile}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="8" r="4"/>
-                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
-              </svg>
-              Profile
-            </button>
-            <button 
+            <button
               onClick={handleSettings}
               className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
             >
@@ -107,7 +108,7 @@ export default function ProfileMenu({ name, email }: ProfileMenuProps) {
           </div>
 
           <div className="border-t border-gray-800 py-1">
-            <button 
+            <button
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
             >
