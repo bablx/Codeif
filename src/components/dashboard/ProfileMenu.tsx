@@ -11,8 +11,16 @@ interface ProfileMenuProps {
 
 export default function ProfileMenu({ name, email, avatarColor = 'bg-[#7030E0]' }: ProfileMenuProps) {
   const [open, setOpen] = useState(false);
+  const [solvedCount, setSolvedCount] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('sf_solved');
+      setSolvedCount(raw ? (JSON.parse(raw) as string[]).length : 0);
+    } catch { /* ignore */ }
+  }, []);
 
   const initial = name ? name.charAt(0).toUpperCase() : 'U';
 
@@ -37,13 +45,6 @@ export default function ProfileMenu({ name, email, avatarColor = 'bg-[#7030E0]' 
     router.push('/settings');
   };
 
-  // Read solved count from localStorage
-  const solvedCount = (() => {
-    try {
-      const raw = localStorage.getItem('sf_solved');
-      return raw ? (JSON.parse(raw) as string[]).length : 0;
-    } catch { return 0; }
-  })();
 
   return (
     <div className="relative z-[100]" ref={ref}>

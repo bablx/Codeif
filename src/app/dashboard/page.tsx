@@ -1,6 +1,7 @@
 "use client";
 
-import { useSyncExternalStore, useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Sidebar from "@/components/dashboard/Sidebar";
 import ProfileMenu from "@/components/dashboard/ProfileMenu";
 import StackSection from "@/components/dashboard/StackSection";
@@ -14,40 +15,31 @@ interface User {
   avatarColor?: string;
 }
 
-const EMPTY_USER: User = { name: "", email: "", avatarColor: "bg-[#7030E0]" };
-
-let _cachedUser: User | null = null;
-
-function readStoredUser(): User {
-  if (_cachedUser !== null) return _cachedUser;
-  try {
-    const raw = localStorage.getItem("sf_user");
-    if (raw) {
-      _cachedUser = JSON.parse(raw) as User;
-      return _cachedUser;
-    }
-  } catch { /* ignore */ }
-  try {
-    const p = new URLSearchParams(window.location.search);
-    const name = p.get("name") ?? "";
-    const email = p.get("email") ?? "";
-    if (name || email) {
-      _cachedUser = { name, email, avatarColor: "bg-[#7030E0]" };
-      return _cachedUser;
-    }
-  } catch { /* ignore */ }
-  _cachedUser = EMPTY_USER;
-  return _cachedUser;
-}
-
 export default function Dashboard() {
-  const user = useSyncExternalStore(
-    () => () => {},
-    readStoredUser,
-    () => EMPTY_USER,
-  );
-
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
   const [section, setSection] = useState<Section>("stack");
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("sf_user");
+      if (!raw) { router.replace("/login"); return; }
+      setUser(JSON.parse(raw) as User);
+    } catch {
+      router.replace("/login");
+      return;
+    }
+    setReady(true);
+  }, [router]);
+
+  if (!ready || !user) {
+    return (
+      <div className="h-screen bg-black flex items-center justify-center">
+        <span className="w-6 h-6 border-2 border-[#7030E0]/40 border-t-[#7030E0] rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-black text-white overflow-hidden">

@@ -89,14 +89,28 @@ function PermissionModal({
   status,
   onAllow,
   onDeny,
+  onClose,
 }: {
   status: PermStatus;
   onAllow: () => void;
   onDeny: () => void;
+  onClose: () => void;
 }) {
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl shadow-black/60 w-full max-w-lg p-8 flex flex-col gap-6">
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl shadow-black/60 w-full max-w-lg p-8 flex flex-col gap-6 relative">
+        {/* Close / back button */}
+        <button
+          onClick={onClose}
+          disabled={status === "requesting"}
+          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:text-white hover:bg-gray-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          title="Go back"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 6 6 18M6 6l12 12"/>
+          </svg>
+        </button>
+
         {/* Header */}
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center shrink-0">
@@ -889,6 +903,7 @@ export default function CodeWorkspace({
           status={permStatus}
           onAllow={handleAllow}
           onDeny={handleDeny}
+          onClose={() => window.history.back()}
         />
       ) : null}
 

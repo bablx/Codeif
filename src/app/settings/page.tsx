@@ -36,6 +36,11 @@ export default function SettingsPage() {
 
   const handleSave = () => {
     saveUser(name, email, avatar, avatarColor, bio);
+    // Keep sf_user in sync so the dashboard reads fresh data
+    try {
+      const existing = JSON.parse(localStorage.getItem("sf_user") || "{}");
+      localStorage.setItem("sf_user", JSON.stringify({ ...existing, name, email, avatarColor }));
+    } catch { /* ignore */ }
     setSaveMessage("Profile updated successfully!");
     setTimeout(() => setSaveMessage(""), 3000);
   };
@@ -47,13 +52,17 @@ export default function SettingsPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-white mb-4">
-            Settings
-          </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Customize your profile and preferences
-          </p>
+        <div className="mb-8">
+          <a href="/dashboard" className="inline-flex items-center gap-2 text-gray-400 hover:text-[#7030E0] transition-colors text-sm mb-6">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Dashboard
+          </a>
+          <div className="text-center">
+            <h1 className="text-5xl font-bold text-white mb-4">Settings</h1>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">Customize your profile and preferences</p>
+          </div>
         </div>
 
         {/* Settings Form */}

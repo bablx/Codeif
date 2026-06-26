@@ -97,15 +97,15 @@ function QuestionRow({ q, index, isSolved }: { q: Question; index: number; isSol
 }
 
 function useSolved() {
-  const [solved, setSolved] = useState<Set<string>>(new Set());
+  const [solved, setSolved] = useState<Set<number>>(new Set());
   useEffect(() => {
     try {
       const raw = localStorage.getItem("sf_solved");
-      if (raw) setSolved(new Set(JSON.parse(raw) as string[]));
+      if (raw) setSolved(new Set(JSON.parse(raw) as number[]));
     } catch { /* ignore */ }
   }, []);
 
-  const markSolved = (id: string) => {
+  const markSolved = (id: number) => {
     setSolved((prev) => {
       const next = new Set(prev);
       next.add(id);
