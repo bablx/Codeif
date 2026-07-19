@@ -10,8 +10,8 @@ export default function AdminTrigger() {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      // Ctrl + Shift + A
-      if (e.ctrlKey && e.shiftKey && e.key === "A") {
+      // Ctrl + Alt + A
+      if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "a") {
         e.preventDefault();
         setOpen((v) => !v);
       }
