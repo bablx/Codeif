@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { questionsByDifficulty } from '@/data/questions';
+import { getLeaderboard } from '@/data/leaderboard';
 
 interface ProfileMenuProps {
   name: string;
@@ -12,15 +14,31 @@ interface ProfileMenuProps {
 export default function ProfileMenu({ name, email, avatarColor = 'bg-[#7030E0]' }: ProfileMenuProps) {
   const [open, setOpen] = useState(false);
   const [solvedCount, setSolvedCount] = useState(0);
+  const [breakdown, setBreakdown] = useState({ easy: 0, medium: 0, extreme: 0 });
+  const [bestRank, setBestRank] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem('sf_solved');
-      setSolvedCount(raw ? (JSON.parse(raw) as string[]).length : 0);
+      const ids = raw ? (JSON.parse(raw) as number[]) : [];
+      setSolvedCount(ids.length);
+      setBreakdown({
+        easy: ids.filter((id) => questionsByDifficulty.easy.some((q) => q.id === id)).length,
+        medium: ids.filter((id) => questionsByDifficulty.medium.some((q) => q.id === id)).length,
+        extreme: ids.filter((id) => questionsByDifficulty.extreme.some((q) => q.id === id)).length,
+      });
     } catch { /* ignore */ }
-  }, []);
+
+    try {
+      const board = getLeaderboard();
+      const ranks = (["easy", "medium", "extreme"] as const)
+        .map((diff) => board[diff].find((e) => e.email === email)?.rank)
+        .filter((r): r is number => typeof r === "number");
+      setBestRank(ranks.length ? Math.min(...ranks) : null);
+    } catch { /* ignore */ }
+  }, [email]);
 
   const initial = name ? name.charAt(0).toUpperCase() : 'U';
 
@@ -82,14 +100,30 @@ export default function ProfileMenu({ name, email, avatarColor = 'bg-[#7030E0]' 
               </div>
             </div>
             {/* Stats row */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2 mb-2">
               <div className="bg-black/30 rounded-lg px-3 py-2 text-center border border-gray-800">
                 <div className="text-[#7030E0] font-bold text-lg leading-none">{solvedCount}</div>
                 <div className="text-gray-500 text-xs mt-0.5">Solved</div>
               </div>
               <div className="bg-black/30 rounded-lg px-3 py-2 text-center border border-gray-800">
-                <div className="text-amber-400 font-bold text-lg leading-none">—</div>
-                <div className="text-gray-500 text-xs mt-0.5">Rank</div>
+                <div className="text-amber-400 font-bold text-lg leading-none">{bestRank ? `#${bestRank}` : "—"}</div>
+                <div className="text-gray-500 text-xs mt-0.5">Best Rank</div>
+              </div>
+            </div>
+
+            {/* Difficulty breakdown */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-black/30 rounded-lg px-2 py-1.5 text-center border border-gray-800">
+                <div className="text-emerald-400 font-bold text-sm leading-none">{breakdown.easy}</div>
+                <div className="text-gray-600 text-xs mt-0.5">Easy</div>
+              </div>
+              <div className="bg-black/30 rounded-lg px-2 py-1.5 text-center border border-gray-800">
+                <div className="text-amber-400 font-bold text-sm leading-none">{breakdown.medium}</div>
+                <div className="text-gray-600 text-xs mt-0.5">Medium</div>
+              </div>
+              <div className="bg-black/30 rounded-lg px-2 py-1.5 text-center border border-gray-800">
+                <div className="text-rose-400 font-bold text-sm leading-none">{breakdown.extreme}</div>
+                <div className="text-gray-600 text-xs mt-0.5">Extreme</div>
               </div>
             </div>
           </div>
