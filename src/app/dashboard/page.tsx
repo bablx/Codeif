@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import Sidebar from "@/components/dashboard/Sidebar";
 import ProfileMenu from "@/components/dashboard/ProfileMenu";
 import StackSection from "@/components/dashboard/StackSection";
 import RankSection from "@/components/dashboard/RankSection";
+
+const AdminPanel = dynamic(() => import("@/components/AdminPanel"), { ssr: false });
 
 type Section = "stack" | "rank";
 
@@ -20,6 +23,7 @@ export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [section, setSection] = useState<Section>("stack");
   const [ready, setReady] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -43,7 +47,8 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-screen bg-black text-white overflow-hidden">
-      <Sidebar active={section} onNavigate={setSection} user={user} />
+      <Sidebar active={section} onNavigate={setSection} user={user} onOpenAdmin={() => setAdminOpen(true)} />
+      {adminOpen && <AdminPanel onClose={() => setAdminOpen(false)} />}
 
       <div className="flex flex-col flex-1 ml-56 min-w-0">
         {/* Top bar */}

@@ -203,6 +203,12 @@ export function getAdminSession(): AdminSession | null {
   return read<AdminSession>(K.adminSession);
 }
 
+export function canAccessAdmin(email: string | undefined | null): boolean {
+  if (!email) return false;
+  if (email === OWNER_EMAIL) return true;
+  return getStaff().some((s) => s.email === email);
+}
+
 export function adminLogout() {
   if (typeof window !== "undefined") localStorage.removeItem(K.adminSession);
 }

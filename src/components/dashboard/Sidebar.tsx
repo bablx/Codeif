@@ -1,6 +1,7 @@
 "use client";
 
 import type { FC } from "react";
+import { canAccessAdmin } from "@/lib/adminData";
 
 type Section = "stack" | "rank";
 
@@ -14,6 +15,7 @@ interface SidebarProps {
   active: Section;
   onNavigate: (section: Section) => void;
   user?: User;
+  onOpenAdmin?: () => void;
 }
 
 const StackIcon = () => (
@@ -40,9 +42,16 @@ const navItems: { id: Section; label: string; icon: FC; description: string }[] 
   { id: "rank", label: "Rank", icon: TrophyIcon, description: "Leaderboard" },
 ];
 
-export default function Sidebar({ active, onNavigate, user }: SidebarProps) {
+const ShieldIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+  </svg>
+);
+
+export default function Sidebar({ active, onNavigate, user, onOpenAdmin }: SidebarProps) {
   const initial = user?.name ? user.name.charAt(0).toUpperCase() : 'U';
   const avatarColor = user?.avatarColor ?? 'bg-[#7030E0]';
+  const showAdmin = canAccessAdmin(user?.email);
 
   const solvedCount = (() => {
     try {
@@ -88,6 +97,21 @@ export default function Sidebar({ active, onNavigate, user }: SidebarProps) {
             </button>
           );
         })}
+
+        {showAdmin && (
+          <button
+            onClick={onOpenAdmin}
+            className="w-full flex items-center gap-3 px-3 py-3 mt-1 rounded-lg text-left transition-all duration-150 text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20"
+          >
+            <span className="text-red-400">
+              <ShieldIcon />
+            </span>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold leading-tight">Admin Panel</span>
+              <span className="text-xs leading-tight text-red-500/70">Review submissions</span>
+            </div>
+          </button>
+        )}
 
         {/* Progress card */}
         <div className="mt-6 mx-1 bg-gray-900/70 border border-gray-800 rounded-xl p-3">
