@@ -123,6 +123,13 @@ export default function StackSection({ userName }: { userName?: string }) {
   const [search, setSearch] = useState("");
   const { solved } = useSolved();
 
+  useEffect(() => {
+    try {
+      const pref = localStorage.getItem("sf_pref_difficulty");
+      if (pref === "easy" || pref === "medium" || pref === "extreme") setActive(pref);
+    } catch { /* ignore */ }
+  }, []);
+
   const easySolved = [...solved].filter((id) => questionsByDifficulty.easy.some((q) => q.id === id)).length;
   const mediumSolved = [...solved].filter((id) => questionsByDifficulty.medium.some((q) => q.id === id)).length;
   const extremeSolved = [...solved].filter((id) => questionsByDifficulty.extreme.some((q) => q.id === id)).length;

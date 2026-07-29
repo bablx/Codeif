@@ -9,6 +9,7 @@ interface User {
   name: string;
   email: string;
   avatarColor?: string;
+  avatarImage?: string;
 }
 
 interface SidebarProps {
@@ -133,8 +134,12 @@ export default function Sidebar({ active, onNavigate, user, onOpenAdmin }: Sideb
       {/* User profile at bottom */}
       <div className="px-3 py-3 border-t border-gray-800">
         <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-gray-800/50 transition-colors cursor-default">
-          <div className={`w-8 h-8 rounded-full ${avatarColor} flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ring-1 ring-white/10`}>
-            {initial}
+          <div className={`w-8 h-8 rounded-full ${avatarColor} flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ring-1 ring-white/10 overflow-hidden`}>
+            {user?.avatarImage ? (
+              <img src={user.avatarImage} alt="" className="w-full h-full object-cover" />
+            ) : (
+              initial
+            )}
           </div>
           <div className="min-w-0">
             <div className="text-white text-xs font-semibold leading-tight truncate">{user?.name || 'Engineer'}</div>

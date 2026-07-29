@@ -16,6 +16,7 @@ interface User {
   name: string;
   email: string;
   avatarColor?: string;
+  avatarImage?: string;
 }
 
 export default function Dashboard() {
@@ -58,7 +59,7 @@ export default function Dashboard() {
             <span className="text-gray-700">/</span>
             <span className="text-gray-300 font-medium capitalize">{section}</span>
           </div>
-          <ProfileMenu name={user.name} email={user.email} avatarColor={user.avatarColor} />
+          <ProfileMenu name={user.name} email={user.email} avatarColor={user.avatarColor} avatarImage={user.avatarImage} />
         </header>
 
         {/* Scrollable content */}

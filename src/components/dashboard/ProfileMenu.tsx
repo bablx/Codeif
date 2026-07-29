@@ -9,9 +9,10 @@ interface ProfileMenuProps {
   name: string;
   email: string;
   avatarColor?: string;
+  avatarImage?: string;
 }
 
-export default function ProfileMenu({ name, email, avatarColor = 'bg-[#7030E0]' }: ProfileMenuProps) {
+export default function ProfileMenu({ name, email, avatarColor = 'bg-[#7030E0]', avatarImage }: ProfileMenuProps) {
   const [open, setOpen] = useState(false);
   const [solvedCount, setSolvedCount] = useState(0);
   const [breakdown, setBreakdown] = useState({ easy: 0, medium: 0, extreme: 0 });
@@ -70,8 +71,8 @@ export default function ProfileMenu({ name, email, avatarColor = 'bg-[#7030E0]' 
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800/70 transition-colors border border-transparent hover:border-gray-700"
       >
-        <div className={`w-8 h-8 rounded-full ${avatarColor} flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ring-2 ring-white/10`}>
-          {initial}
+        <div className={`w-8 h-8 rounded-full ${avatarColor} flex items-center justify-center text-white font-bold text-sm flex-shrink-0 ring-2 ring-white/10 overflow-hidden`}>
+          {avatarImage ? <img src={avatarImage} alt="" className="w-full h-full object-cover" /> : initial}
         </div>
         <div className="text-left hidden sm:block">
           <div className="text-white text-sm font-semibold leading-tight">{name || 'Engineer'}</div>
@@ -91,8 +92,8 @@ export default function ProfileMenu({ name, email, avatarColor = 'bg-[#7030E0]' 
           {/* Profile header */}
           <div className="px-4 py-4 bg-gradient-to-br from-[#7030E0]/20 to-transparent border-b border-gray-800">
             <div className="flex items-center gap-3 mb-3">
-              <div className={`w-12 h-12 rounded-full ${avatarColor} flex items-center justify-center text-white font-bold text-lg flex-shrink-0 ring-2 ring-white/10`}>
-                {initial}
+              <div className={`w-12 h-12 rounded-full ${avatarColor} flex items-center justify-center text-white font-bold text-lg flex-shrink-0 ring-2 ring-white/10 overflow-hidden`}>
+                {avatarImage ? <img src={avatarImage} alt="" className="w-full h-full object-cover" /> : initial}
               </div>
               <div>
                 <div className="text-white font-bold text-sm">{name || 'Engineer'}</div>

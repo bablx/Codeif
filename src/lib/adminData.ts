@@ -9,6 +9,7 @@ export interface UserSession {
   email: string;
   avatar?: string;
   avatarColor?: string;
+  avatarImage?: string; // base64 data URL of an uploaded photo
   bio?: string;
 }
 
@@ -174,8 +175,8 @@ function write(key: string, value: unknown) {
 }
 
 // ── User session ──────────────────────────────────────────────────────────────
-export function saveUser(name: string, email: string, avatar?: string, avatarColor?: string, bio?: string) {
-  write(K.user, { name, email, avatar, avatarColor, bio });
+export function saveUser(name: string, email: string, avatar?: string, avatarColor?: string, bio?: string, avatarImage?: string) {
+  write(K.user, { name, email, avatar, avatarColor, bio, avatarImage });
 }
 
 export function getUser(): UserSession | null {
