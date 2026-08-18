@@ -60,6 +60,7 @@ const K = {
   adminSession: "sf_admin_session",
   staff:        "sf_staff",
   submissions:  "sf_submissions",
+  notifications: "sf_notifications",
 } as const;
 
 // ── IndexedDB for video storage ───────────────────────────────────────────────
@@ -351,17 +352,71 @@ export function saveSubmission(sub: SubmissionCapture) {
 }
 
 export function updateSubmissionStatus(id: string, status: "approved" | "denied") {
-  const subs = getSubmissions().map((s) => (s.id === id ? { ...s, status } : s));
-  write(K.submissions, subs);
+  const subs = getSubmissions();
+  const target = subs.find((s) => s.id === id);
+  write(K.submissions, subs.map((s) => (s.id === id ? { ...s, status } : s)));
+  if (target) {
+    addNotification(
+      target.userEmail,
+      status === "approved"
+        ? `Your submission for "${target.questionTitle}" was approved — your rank has been updated.`
+        : `Your submission for "${target.questionTitle}" was denied. If you believe this is a mistake, raise a ticket.`,
+      status,
+    );
+  }
 }
 
 export function declineAllUserSubmissions(userEmail: string): number {
-  const subs = getSubmissions().map((s) => 
+  const before = getSubmissions();
+  const toDecline = before.filter((s) => s.userEmail === userEmail && s.status === "pending");
+  const subs = before.map((s) =>
     (s.userEmail === userEmail && s.status === "pending" ? { ...s, status: "denied" as const } : s)
   );
   write(K.submissions, subs);
-  const declinedCount = subs.filter((s) => s.userEmail === userEmail && s.status === "denied").length;
-  return declinedCount;
+  if (toDecline.length > 0) {
+    addNotification(
+      userEmail,
+      `${toDecline.length} of your pending submission${toDecline.length > 1 ? "s were" : " was"} declined.`,
+      "denied",
+    );
+  }
+  return toDecline.length;
+}
+
+// ── Notifications ─────────────────────────────────────────────────────────────
+export interface UserNotification {
+  id: string;
+  userEmail: string;
+  message: string;
+  type: "approved" | "denied";
+  read: boolean;
+  createdAt: string;
+}
+
+export function addNotification(userEmail: string, message: string, type: "approved" | "denied") {
+  const all = read<UserNotification[]>(K.notifications) ?? [];
+  all.unshift({
+    id: `ntf_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    userEmail,
+    message,
+    type,
+    read: false,
+    createdAt: new Date().toISOString(),
+  });
+  write(K.notifications, all);
+}
+
+export function getNotifications(userEmail: string): UserNotification[] {
+  const all = read<UserNotification[]>(K.notifications) ?? [];
+  return all.filter((n) => n.userEmail === userEmail);
+}
+
+export function markNotificationsRead(userEmail: string) {
+  const all = read<UserNotification[]>(K.notifications) ?? [];
+  write(
+    K.notifications,
+    all.map((n) => (n.userEmail === userEmail ? { ...n, read: true } : n)),
+  );
 }
 
 // Group pending submissions by user email

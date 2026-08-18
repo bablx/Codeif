@@ -22,38 +22,12 @@ interface Language {
   id: string;
   label: string;
   monacoId: string;
-  pistonLang: string;
-  pistonVersion: string;
 }
 const LANGUAGES: Language[] = [
-  {
-    id: "python",
-    label: "Python 3",
-    monacoId: "python",
-    pistonLang: "python",
-    pistonVersion: "3.10.0",
-  },
-  {
-    id: "javascript",
-    label: "JavaScript",
-    monacoId: "javascript",
-    pistonLang: "javascript",
-    pistonVersion: "18.15.0",
-  },
-  {
-    id: "cpp",
-    label: "C++",
-    monacoId: "cpp",
-    pistonLang: "c++",
-    pistonVersion: "10.2.0",
-  },
-  {
-    id: "java",
-    label: "Java",
-    monacoId: "java",
-    pistonLang: "java",
-    pistonVersion: "15.0.2",
-  },
+  { id: "python", label: "Python 3", monacoId: "python" },
+  { id: "javascript", label: "JavaScript", monacoId: "javascript" },
+  { id: "cpp", label: "C++", monacoId: "cpp" },
+  { id: "java", label: "Java", monacoId: "java" },
 ];
 
 type RunStatus = "idle" | "running" | "success" | "error";
@@ -159,29 +133,21 @@ function PermissionModal({
           </p>
 
           {/* Info box */}
-          <div className="bg-amber-400/5 border border-amber-400/20 rounded-xl p-4 space-y-2">
-            <div className="flex items-start gap-2 text-amber-300 text-xs">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="shrink-0 mt-0.5"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-              <span>
-                Granting these permissions is{" "}
-                <strong>completely optional.</strong> However, participants who
-                choose not to enable Camera or Screen Sharing will{" "}
-                <strong>not be eligible for leaderboard rankings</strong> or
-                verified competition status.
+          <div className="bg-amber-400/5 border border-amber-400/20 rounded-xl p-4 space-y-2.5">
+            <div className="flex items-center gap-2.5 text-sm">
+              <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs shrink-0">
+                ✓
+              </span>
+              <span className="text-white font-medium">
+                Camera &amp; Screen <span className="text-gray-400 font-normal">=</span> Leaderboard
+              </span>
+            </div>
+            <div className="flex items-center gap-2.5 text-sm">
+              <span className="w-5 h-5 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center text-xs shrink-0">
+                ✗
+              </span>
+              <span className="text-white font-medium">
+                No Camera &amp; Screen <span className="text-gray-400 font-normal">=</span> No Leaderboard
               </span>
             </div>
           </div>
@@ -284,9 +250,13 @@ function PermissionModal({
 // ── Submit Result Modal ────────────────────────────────────────────────────────
 function SubmitModal({
   verified,
+  neverShowAgain,
+  onNeverShowAgainChange,
   onClose,
 }: {
   verified: boolean;
+  neverShowAgain: boolean;
+  onNeverShowAgainChange: (v: boolean) => void;
   onClose: () => void;
 }) {
   return (
@@ -314,29 +284,8 @@ function SubmitModal({
                 Submission Recorded
               </h3>
               <p className="text-gray-400 text-sm mt-1">
-                Your code has been submitted with verification data and is
-                eligible for leaderboard ranking.
+                Your rank will be approved within 24 hours.
               </p>
-            </div>
-            <div className="w-full bg-gray-800 rounded-xl p-4 space-y-2 text-left">
-              <div className="flex items-center gap-2 text-xs text-gray-300">
-                <span className="w-4 h-4 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-                  ✓
-                </span>
-                Camera snapshot captured
-              </div>
-              <div className="flex items-center gap-2 text-xs text-gray-300">
-                <span className="w-4 h-4 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-                  ✓
-                </span>
-                Screen capture captured
-              </div>
-              <div className="flex items-center gap-2 text-xs text-gray-300">
-                <span className="w-4 h-4 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-                  ✓
-                </span>
-                Queued for admin verification
-              </div>
             </div>
           </>
         ) : (
@@ -389,6 +338,15 @@ function SubmitModal({
             </div>
           </>
         )}
+        <label className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={neverShowAgain}
+            onChange={(e) => onNeverShowAgainChange(e.target.checked)}
+            className="w-3.5 h-3.5 rounded border-gray-600 text-[#7030E0] focus:ring-[#7030E0] focus:ring-offset-gray-900"
+          />
+          Never show this again
+        </label>
         <div className="flex gap-3 w-full">
           <Link
             href="/dashboard"
@@ -400,7 +358,50 @@ function SubmitModal({
             onClick={onClose}
             className="flex-1 py-2.5 bg-[#7030E0] hover:bg-[#8B4CFF] text-white text-sm font-semibold rounded-xl transition-colors"
           >
-            Continue Coding
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Invalid Code Confirm Modal ────────────────────────────────────────────────
+function InvalidCodeModal({
+  onContinue,
+  onExit,
+}: {
+  onContinue: () => void;
+  onExit: () => void;
+}) {
+  return (
+    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl w-full max-w-sm p-7 flex flex-col items-center gap-5 text-center">
+        <div className="w-14 h-14 rounded-full bg-rose-400/10 border border-rose-400/20 flex items-center justify-center">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-rose-400">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+        </div>
+        <div>
+          <h3 className="text-white font-bold text-lg">Code Seems Invalid</h3>
+          <p className="text-gray-400 text-sm mt-1">
+            Your code didn&apos;t run successfully. Would you like to continue?
+          </p>
+        </div>
+        <div className="flex gap-3 w-full">
+          <button
+            onClick={onExit}
+            className="flex-1 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm font-semibold rounded-xl transition-colors"
+          >
+            Exit
+          </button>
+          <button
+            onClick={onContinue}
+            className="flex-1 py-2.5 bg-[#7030E0] hover:bg-[#8B4CFF] text-white text-sm font-semibold rounded-xl transition-colors"
+          >
+            Continue
           </button>
         </div>
       </div>
@@ -634,57 +635,100 @@ export default function CodeWorkspace({
   const screenChunksRef = useRef<Blob[]>([]);
   const audioChunksRef = useRef<Blob[]>([]);
 
-  // Submit modal
+  // Submit flow
   const [showSubmit, setShowSubmit] = useState(false);
   const [submitVerified, setSubmitVerified] = useState(false);
-  const [skipLeaderboard, setSkipLeaderboard] = useState(false);
+  const [submitChecking, setSubmitChecking] = useState(false);
+  const [invalidCodePrompt, setInvalidCodePrompt] = useState(false);
+  const [hideSuccessNotice, setHideSuccessNotice] = useState(false);
+  const [neverShowAgainChecked, setNeverShowAgainChecked] = useState(false);
+
+  useEffect(() => {
+    try {
+      setHideSuccessNotice(localStorage.getItem("sf_hide_submit_notice") === "1");
+    } catch { /* ignore */ }
+  }, []);
+
+  // ── Recording helpers (also reused to restart on language switch) ──────────
+  const startCameraRecording = useCallback((stream: MediaStream) => {
+    try {
+      const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+        ? 'video/webm;codecs=vp9'
+        : MediaRecorder.isTypeSupported('video/webm')
+          ? 'video/webm'
+          : '';
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      cameraChunksRef.current = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) cameraChunksRef.current.push(e.data);
+      };
+      recorder.start(1000);
+      cameraRecorderRef.current = recorder;
+    } catch (err) {
+      console.error('Failed to start camera recorder:', err);
+    }
+
+    try {
+      const audioStream = stream.clone();
+      const audioTracks = audioStream.getAudioTracks();
+      if (audioTracks.length > 0) {
+        const audioOnlyStream = new MediaStream(audioTracks);
+        const audioMimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
+        const audioRecorder = new MediaRecorder(audioOnlyStream, audioMimeType ? { mimeType: audioMimeType } : undefined);
+        audioChunksRef.current = [];
+        audioRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) audioChunksRef.current.push(e.data);
+        };
+        audioRecorder.start(1000);
+        audioRecorderRef.current = audioRecorder;
+      }
+    } catch (err) {
+      console.error('Failed to start audio recorder:', err);
+    }
+  }, []);
+
+  const startScreenRecording = useCallback((stream: MediaStream) => {
+    try {
+      const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+        ? 'video/webm;codecs=vp9'
+        : MediaRecorder.isTypeSupported('video/webm')
+          ? 'video/webm'
+          : '';
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      screenChunksRef.current = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) screenChunksRef.current.push(e.data);
+      };
+      recorder.start(1000);
+      screenRecorderRef.current = recorder;
+    } catch (err) {
+      console.error('Failed to start screen recorder:', err);
+    }
+  }, []);
+
+  // Discards footage recorded so far and starts fresh — used when the user
+  // switches language mid-session, so a submission only reflects the
+  // language it was actually submitted in.
+  const restartRecordings = useCallback(() => {
+    if (cameraRecorderRef.current && cameraRecorderRef.current.state === 'recording') {
+      cameraRecorderRef.current.stop();
+    }
+    if (audioRecorderRef.current && audioRecorderRef.current.state === 'recording') {
+      audioRecorderRef.current.stop();
+    }
+    if (screenRecorderRef.current && screenRecorderRef.current.state === 'recording') {
+      screenRecorderRef.current.stop();
+    }
+    if (cameraStream) startCameraRecording(cameraStream);
+    if (screenStream) startScreenRecording(screenStream);
+  }, [cameraStream, screenStream, startCameraRecording, startScreenRecording]);
 
   // Attach streams to video elements and start recording
   useEffect(() => {
     if (cameraStream && cameraVideoRef.current) {
       cameraVideoRef.current.srcObject = cameraStream;
       cameraVideoRef.current.play().catch(() => {});
-
-      // Start recording camera (with audio)
-      try {
-        const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') 
-          ? 'video/webm;codecs=vp9' 
-          : MediaRecorder.isTypeSupported('video/webm') 
-            ? 'video/webm' 
-            : '';
-        const recorder = new MediaRecorder(cameraStream, mimeType ? { mimeType } : undefined);
-        cameraChunksRef.current = [];
-        recorder.ondataavailable = (e) => {
-          if (e.data.size > 0) {
-            cameraChunksRef.current.push(e.data);
-          }
-        };
-        recorder.start(1000); // Capture chunks every second
-        cameraRecorderRef.current = recorder;
-      } catch (err) {
-        console.error('Failed to start camera recorder:', err);
-      }
-
-      // Start recording audio separately
-      try {
-        const audioStream = cameraStream.clone();
-        const audioTracks = audioStream.getAudioTracks();
-        if (audioTracks.length > 0) {
-          const audioOnlyStream = new MediaStream(audioTracks);
-          const audioMimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
-          const audioRecorder = new MediaRecorder(audioOnlyStream, audioMimeType ? { mimeType: audioMimeType } : undefined);
-          audioChunksRef.current = [];
-          audioRecorder.ondataavailable = (e) => {
-            if (e.data.size > 0) {
-              audioChunksRef.current.push(e.data);
-            }
-          };
-          audioRecorder.start(1000); // Capture chunks every second
-          audioRecorderRef.current = audioRecorder;
-        }
-      } catch (err) {
-        console.error('Failed to start audio recorder:', err);
-      }
+      startCameraRecording(cameraStream);
     }
     return () => {
       if (cameraRecorderRef.current && cameraRecorderRef.current.state === 'recording') {
@@ -694,39 +738,20 @@ export default function CodeWorkspace({
         audioRecorderRef.current.stop();
       }
     };
-  }, [cameraStream]);
+  }, [cameraStream, startCameraRecording]);
 
   useEffect(() => {
     if (screenStream && screenVideoRef.current) {
       screenVideoRef.current.srcObject = screenStream;
       screenVideoRef.current.play().catch(() => {});
-
-      // Start recording screen
-      try {
-        const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') 
-          ? 'video/webm;codecs=vp9' 
-          : MediaRecorder.isTypeSupported('video/webm') 
-            ? 'video/webm' 
-            : '';
-        const recorder = new MediaRecorder(screenStream, mimeType ? { mimeType } : undefined);
-        screenChunksRef.current = [];
-        recorder.ondataavailable = (e) => {
-          if (e.data.size > 0) {
-            screenChunksRef.current.push(e.data);
-          }
-        };
-        recorder.start(1000); // Capture chunks every second
-        screenRecorderRef.current = recorder;
-      } catch (err) {
-        console.error('Failed to start screen recorder:', err);
-      }
+      startScreenRecording(screenStream);
     }
     return () => {
       if (screenRecorderRef.current && screenRecorderRef.current.state === 'recording') {
         screenRecorderRef.current.stop();
       }
     };
-  }, [screenStream]);
+  }, [screenStream, startScreenRecording]);
 
   // Cleanup streams on unmount
   useEffect(() => {
@@ -769,41 +794,49 @@ export default function CodeWorkspace({
   }, []);
 
   // ── Run code ────────────────────────────────────────────────────────────────
-  const runCode = useCallback(async () => {
-    setResult({ status: "running", stdout: "", stderr: "" });
-    setConsoleOpen(true);
+  const executeCode = useCallback(async (): Promise<RunResult> => {
     const t0 = Date.now();
     try {
-      const res = await fetch("https://emkc.org/api/v2/piston/execute", {
+      const res = await fetch("/api/execute", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          language: lang.pistonLang,
-          version: lang.pistonVersion,
-          files: [{ name: "main", content: code }],
-        }),
+        body: JSON.stringify({ code, language: lang.id }),
       });
-      if (!res.ok) throw new Error(`API ${res.status}`);
       const data = await res.json();
-      const run = data.run ?? {};
-      setResult({
-        status: (run.code ?? 0) === 0 ? "success" : "error",
-        stdout: (run.stdout ?? "").trimEnd(),
-        stderr: (run.stderr ?? "").trimEnd(),
+      if (!res.ok) {
+        return {
+          status: "error",
+          stdout: "",
+          stderr: data.error ?? `API ${res.status}`,
+          runtime: Date.now() - t0,
+        };
+      }
+      return {
+        status: data.success ? "success" : "error",
+        stdout: (data.stdout ?? "").trimEnd(),
+        stderr: (data.stderr ?? "").trimEnd(),
         runtime: Date.now() - t0,
-      });
+      };
     } catch (err) {
-      setResult({
+      return {
         status: "error",
         stdout: "",
         stderr: String(err),
         runtime: Date.now() - t0,
-      });
+      };
     }
   }, [code, lang]);
 
+  const runCode = useCallback(async () => {
+    setResult({ status: "running", stdout: "", stderr: "" });
+    setConsoleOpen(true);
+    const r = await executeCode();
+    setResult(r);
+    return r;
+  }, [executeCode]);
+
   // ── Submit ──────────────────────────────────────────────────────────────────
-  const handleSubmit = useCallback(async () => {
+  const finalizeSubmit = useCallback(async () => {
     const verified = permStatus === "granted";
     const sessionUser = getUser();
 
@@ -852,29 +885,27 @@ export default function CodeWorkspace({
       }
     }
 
-    // Only save to admin panel if user didn't skip leaderboard
-    if (!skipLeaderboard) {
-      saveSubmission({
-        id: submissionId,
-        userName: sessionUser?.name ?? "Anonymous",
-        userEmail: sessionUser?.email ?? "unknown@user.com",
-        questionId: question.id,
-        questionTitle: question.title,
-        difficulty: question.difficulty,
-        language: lang.id,
-        code,
-        cameraSnapshot: camCapture,
-        screenSnapshot: scrCapture,
-        hasCameraVideo: hasCamVideo,
-        hasScreenVideo: hasScrVideo,
-        hasAudio: hasAudio,
-        submittedAt: new Date().toISOString(),
-        status: "pending",
-      });
-    }
+    saveSubmission({
+      id: submissionId,
+      userName: sessionUser?.name ?? "Anonymous",
+      userEmail: sessionUser?.email ?? "unknown@user.com",
+      questionId: question.id,
+      questionTitle: question.title,
+      difficulty: question.difficulty,
+      language: lang.id,
+      code,
+      cameraSnapshot: camCapture,
+      screenSnapshot: scrCapture,
+      hasCameraVideo: hasCamVideo,
+      hasScreenVideo: hasScrVideo,
+      hasAudio: hasAudio,
+      submittedAt: new Date().toISOString(),
+      status: "pending",
+    });
 
     setSubmitVerified(verified);
-    setShowSubmit(true);
+    setInvalidCodePrompt(false);
+    if (!hideSuccessNotice) setShowSubmit(true);
   }, [
     permStatus,
     question.id,
@@ -882,8 +913,22 @@ export default function CodeWorkspace({
     question.difficulty,
     lang.id,
     code,
-    skipLeaderboard,
+    hideSuccessNotice,
   ]);
+
+  // Auto-runs the code first; only asks for confirmation if it fails.
+  const handleSubmitClick = useCallback(async () => {
+    setSubmitChecking(true);
+    const r = await executeCode();
+    setResult(r);
+    setConsoleOpen(true);
+    setSubmitChecking(false);
+    if (r.status === "success") {
+      await finalizeSubmit();
+    } else {
+      setInvalidCodePrompt(true);
+    }
+  }, [executeCode, finalizeSubmit]);
 
   const changeLang = useCallback(
     (l: Language) => {
@@ -891,8 +936,9 @@ export default function CodeWorkspace({
       setCode(details.starterCode[l.id] ?? "");
       setResult(null);
       setLangMenuOpen(false);
+      if (permStatus === "granted") restartRecordings();
     },
-    [details.starterCode],
+    [details.starterCode, permStatus, restartRecordings],
   );
 
   return (
@@ -911,7 +957,26 @@ export default function CodeWorkspace({
       {showSubmit && (
         <SubmitModal
           verified={submitVerified}
-          onClose={() => setShowSubmit(false)}
+          neverShowAgain={neverShowAgainChecked}
+          onNeverShowAgainChange={setNeverShowAgainChecked}
+          onClose={() => {
+            if (neverShowAgainChecked) {
+              try { localStorage.setItem("sf_hide_submit_notice", "1"); } catch { /* ignore */ }
+              setHideSuccessNotice(true);
+            }
+            setShowSubmit(false);
+          }}
+        />
+      )}
+
+      {/* ── Invalid code confirm modal ──────────────────────────────────────── */}
+      {invalidCodePrompt && (
+        <InvalidCodeModal
+          onContinue={async () => {
+            setInvalidCodePrompt(false);
+            await finalizeSubmit();
+          }}
+          onExit={() => setInvalidCodePrompt(false)}
         />
       )}
 
@@ -1082,35 +1147,34 @@ export default function CodeWorkspace({
           )}
         </button>
 
-        {/* Skip Leaderboard Toggle */}
-        <label className="flex items-center gap-2 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-medium rounded-lg transition-colors cursor-pointer shrink-0 border border-gray-700">
-          <input
-            type="checkbox"
-            checked={skipLeaderboard}
-            onChange={(e) => setSkipLeaderboard(e.target.checked)}
-            className="w-3 h-3 rounded border-gray-600 text-[#7030E0] focus:ring-[#7030E0] focus:ring-offset-gray-900"
-          />
-          Skip Leaderboard
-        </label>
-
         {/* Submit */}
         <button
-          onClick={handleSubmit}
-          className="flex items-center gap-2 px-4 py-1.5 bg-[#7030E0] hover:bg-[#8B4CFF] text-white text-sm font-semibold rounded-lg transition-colors shrink-0"
+          onClick={handleSubmitClick}
+          disabled={submitChecking}
+          className="flex items-center gap-2 px-4 py-1.5 bg-[#7030E0] hover:bg-[#8B4CFF] disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors shrink-0"
         >
-          <svg
-            width="13"
-            height="13"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-          Submit
+          {submitChecking ? (
+            <>
+              <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              Checking
+            </>
+          ) : (
+            <>
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              Submit
+            </>
+          )}
         </button>
       </header>
 

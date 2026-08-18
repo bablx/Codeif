@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import Sidebar from "@/components/dashboard/Sidebar";
 import ProfileMenu from "@/components/dashboard/ProfileMenu";
+import NotificationBell from "@/components/dashboard/NotificationBell";
 import StackSection from "@/components/dashboard/StackSection";
 import RankSection from "@/components/dashboard/RankSection";
 
@@ -59,7 +60,10 @@ export default function Dashboard() {
             <span className="text-gray-700">/</span>
             <span className="text-gray-300 font-medium capitalize">{section}</span>
           </div>
-          <ProfileMenu name={user.name} email={user.email} avatarColor={user.avatarColor} avatarImage={user.avatarImage} />
+          <div className="flex items-center gap-2">
+            <NotificationBell email={user.email} />
+            <ProfileMenu name={user.name} email={user.email} avatarColor={user.avatarColor} avatarImage={user.avatarImage} />
+          </div>
         </header>
 
         {/* Scrollable content */}
